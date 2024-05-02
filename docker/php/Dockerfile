@@ -3,7 +3,8 @@ FROM php:8.3.0-fpm
 ARG UID
 
 # Create user and some useful stuff
-RUN adduser -u ${UID} --disabled-password --gecos "" appuser
+RUN adduser appuser
+RUN usermod -aG sudo appuser
 RUN mkdir /home/appuser/.ssh
 RUN chown -R appuser:appuser /home/appuser/
 RUN echo "StrictHostKeyChecking no" >> /home/appuser/.ssh/config
@@ -15,7 +16,7 @@ RUN apt update \
     && apt install -y git acl openssl openssh-client wget zip vim librabbitmq-dev libssh-dev \
     && apt install -y libpng-dev zlib1g-dev libzip-dev libxml2-dev libicu-dev sudo nodejs npm \
     && docker-php-ext-install intl pdo pdo_mysql zip soap bcmath sockets \
-    && xsl amqp openssl qd pecl install xdebug \
+    && pecl install xdebug \
     && docker-php-ext-enable --ini-name 05-opcache.ini opcache xdebug
 
 # Install and update composer

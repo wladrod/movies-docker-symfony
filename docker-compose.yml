@@ -1,23 +1,23 @@
 version: '3.5'
 
 services:
-  docker-dev-env-for-symfony-web:
-    container_name: docker-dev-env-for-symfony-web
+  docker-symfony-web:
+    container_name: docker-symfony-web
     build:
       context: ./docker/nginx
       args:
         UID: $U_ID
     ports:
-      - 1000:80
+      - 8081:80
     volumes:
       - ./public:/appdata/www/public
     depends_on:
-      - docker-dev-env-for-symfony-be
+      - docker-symfony-be
     networks:
-      - docker-dev-env-for-symfony-network
+      - docker-symfony-network
 
-  docker-dev-env-for-symfony-be:
-    container_name: docker-dev-env-for-symfony-be
+  docker-symfony-be:
+    container_name: docker-symfony-be
     build:
       context: docker/php
       args:
@@ -29,14 +29,14 @@ services:
     # Linux: run "ip a | grep docker0"
     # Windows (with WSL2) and Mac: host.docker.internal
     environment:
-      XDEBUG_CLIENT_HOST: host.docker.internal
+      XDEBUG_CLIENT_HOST: 172.17.0.1
       XDEBUG_CLIENT_PORT: 9003
-      PHP_IDE_CONFIG: serverName=docker-dev-env-for-symfony
+      PHP_IDE_CONFIG: serverName=docker-symfony
     networks:
-      - docker-dev-env-for-symfony-network
+      - docker-symfony-network
 
-  docker-dev-env-for-symfony-db:
-    container_name: docker-dev-env-for-symfony-db
+  docker-symfony-db:
+    container_name: docker-symfony-db
     build:
       context: ./docker/database
     ports:
@@ -45,9 +45,9 @@ services:
       MYSQL_DATABASE: database
       MYSQL_ROOT_PASSWORD: root
     volumes:
-      - docker-dev-env-for-symfony-db-data:/var/lib/mysql
+      - docker-symfony-db-data:/var/lib/mysql
     networks:
-      - docker-dev-env-for-symfony-network
+      - docker-symfony-network
     command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
 
 ###> doctrine/doctrine-bundle ###
@@ -74,8 +74,8 @@ volumes:
 ###> doctrine/doctrine-bundle ###
   database_data:
 ###< doctrine/doctrine-bundle ###
-  docker-dev-env-for-symfony-db-data:
+  docker-symfony-db-data:
 
 networks:
-  docker-dev-env-for-symfony-network:
+  docker-symfony-network:
     external: true
